@@ -1,0 +1,18 @@
+---
+- name: Pre-pull master system container image
+  command: >
+    atomic pull --storage=ostree {{ openshift.common.system_images_registry }}/{{ openshift.master.master_system_image }}:{{ openshift_image_tag }}
+  register: pull_result
+  changed_when: "'Pulling layer' in pull_result.stdout"
+  when: openshift.common.is_containerized | bool and openshift.common.is_master_system_container | bool
+
+- name: Uninstall Master system container package
+  command: >
+    atomic uninstall {{ openshift.common.service_type }}-master
+  failed_when: False
+  when: openshift.common.version != openshift_version and openshift.common.is_containerized | bool and openshift.common.is_master_system_container | bool
+
+- name: Install Master system container package
+  command: >
+    atomic install --system --name={{ openshift.common.service_type }}-master {{ openshift.common.system_images_registry }}/{{ openshift.master.master_system_image }}:{{ openshift_image_tag }}
+  when: openshift.common.version != openshift_version and openshift.common.is_containerized | bool and openshift.common.is_master_system_container | bool
