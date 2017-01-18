@@ -28,7 +28,9 @@
     dest: "/etc/systemd/system/{{ openshift.common.service_type }}-node.service"
     src: openshift.docker.node.service
   register: install_node_result
-  when: openshift.common.is_containerized | bool and not openshift.common.is_node_system_container | bool
+  when:
+  - openshift.common.is_containerized | bool
+  - not openshift.common.is_node_system_container | bool
 
 - name: Create the openvswitch service env file
   template:
@@ -61,7 +63,10 @@
   template:
     dest: "/etc/systemd/system/openvswitch.service"
     src: openvswitch.docker.service
-  when: openshift.common.is_containerized | bool and openshift.common.use_openshift_sdn | default(true) | bool and not openshift.common.is_openvswitch_system_container | bool
+  when:
+  - openshift.common.is_containerized | bool
+  - openshift.common.use_openshift_sdn | default(true) | bool
+  - not openshift.common.is_openvswitch_system_container | bool
   notify:
   - restart openvswitch
 
