@@ -145,3 +145,7 @@ l_docker_image_default: "{{ l_docker_image_prepend }}:{{ l_docker_image_tag }}"
 l_docker_image: "{{ openshift_docker_systemcontainer_image_override | default(l_docker_image_default) }}"
 
 l_is_node_system_container: "{{ (openshift_use_node_system_container | default(openshift_use_system_containers | default(false)) | bool) }}"
+
+l_crio_openshift_version: "{{ openshift_image_tag | default(openshift_release) | string }}"
+l_crio_use_new_var_sock: "{{  (l_crio_openshift_version == 'latest') or (l_crio_openshift_version | version_compare('3.9', '>='))  | bool }}"
+l_crio_var_sock: "{{ l_crio_use_new_var_sock | ternary('/var/run/crio/crio.sock', '/var/run/crio.sock') }}"
